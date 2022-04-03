@@ -1,13 +1,17 @@
 
+import domain.Movie;
 import utils.ManageStringsHandler;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class Main {
@@ -27,67 +31,67 @@ public class Main {
 
         String[] moviesArray = parseJsonMovies(result);
 
-        List<String> titles = parseAttribute(moviesArray, "title");
-        titles.forEach(System.out::println);
-
-        List<String> urlImages = parseAttribute(moviesArray, "image");
-        urlImages.forEach(System.out::println);
+        List<Movie> movies = parseMovies(moviesArray);
+        movies.forEach((movie) -> {
+            System.out.println(movie.toString());
+        });
     }
 
-    private static List<String> parseAttribute(String[] moviesArray, String attribute){
-        List<String> attributeList = new ArrayList<>();
-        String[] attributes;
+    private static List<Movie> parseMovies(String[] moviesArray){
+        List<Movie> listMovies = new ArrayList<>();
+        Iterator<String> titles = parseTitles(moviesArray).iterator();
+        Iterator<String> urlImages = parseUrlImages(moviesArray).iterator();
+        Iterator<String> ratings = parseRating(moviesArray).iterator();
+        Iterator<String> years = parseYear(moviesArray).iterator();
 
-        for (String movie :
-                moviesArray) {
-            attributes = movie.split(",");
-
-            for (String attr :
-                    attributes) {
-                if (attr.contains(attribute)){
-                    attributeList.add(attr);
-                    break;
-                }
-            }
+        while (titles.hasNext()){
+            listMovies.add(new Movie(titles.next(),
+                    urlImages.next(),
+                    Double.parseDouble(ratings.next()),
+                    Integer.parseInt(years.next())));
         }
 
-        return attributeList;
+        return listMovies;
     }
 
     private static List<String> parseTitles(String[] moviesArray) {
-        List<String> titles = new ArrayList<>();
-        String[] attributes;
+        return parseAttribute(moviesArray, 3);
+    }
 
-        for (String movie :
-                moviesArray) {
-            attributes = movie.split(",");
+    private static List<String> parseUrlImages(String[] moviesArray) {
+        return parseAttribute(moviesArray, 5);
+    }
 
-            for (String attribute :
-                    attributes) {
-                if (attribute.contains("title"))
-                    titles.add(attribute);
-            }
-        }
+    private static List<String> parseRating(String[] moviesArray) {
+        return parseAttribute(moviesArray, 7);
+    }
 
-        return titles;
+    private static List<String> parseYear(String[] moviesArray) {
+        return parseAttribute(moviesArray, 4);
+    }
+
+    private static List<String> parseAttribute(String[] moviesArray, int pos) {
+        return Stream.of(moviesArray)
+                .map(e -> e.split("\",\"")[pos])
+                .map(e -> e.split(":\"")[1])
+                .map(e -> e.replaceAll("\"", ""))
+                .collect(Collectors.toList());
     }
 
     private static String[] parseJsonMovies(String json){
-        Pattern pattern = Pattern.compile("\\[(.*?)\\]");
+        Pattern pattern = Pattern.compile(".*\\[(.*)\\].*");
         Matcher matcher = pattern.matcher(json);
         StringBuilder sb  = new StringBuilder();
         while (matcher.find()) {
             sb.append(matcher.group(1));
         }
-        String[] resultList = sb.toString().split("(},)");
+        String[] resultList = sb.toString().split("\\},\\{");
 
-        for (int i = 0; i < resultList.length; i++) {
-            resultList[i] = resultList[i].substring(1);
-        }
+        int last = resultList.length - 1;
+        resultList[0] = resultList[0].substring(1);
+        resultList[last] = resultList[last].substring(0,resultList[last].length()-1);
 
-        resultList[249] = resultList[249].substring(0,resultList[249].length()-1);
-
-        return resultList;
+        return resultList;  
     }
 
 }
