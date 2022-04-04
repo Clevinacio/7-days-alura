@@ -13,15 +13,6 @@ public class ImdbApiClient {
         this.API_KEY = API_KEY;
     }
 
-    private String createURIPath(String path) {
-        String BASE_URL = "https://imdb-api.com/";
-        return BASE_URL +
-                "API/" +
-                path +
-                "/" +
-                API_KEY;
-    }
-
     public String getJson(String path) throws IOException, InterruptedException {
         String uriPath = createURIPath(path);
 
@@ -33,5 +24,14 @@ public class ImdbApiClient {
         HttpResponse<String> response = hc.send(hr, HttpResponse.BodyHandlers.ofString());
 
         return response.body();
+    }
+
+    private String createURIPath(String path) {
+        String BASE_URL = "https://imdb-api.com/";
+        return BASE_URL +
+                "API/" +
+                path +
+                "/" +
+                API_KEY;
     }
 }
