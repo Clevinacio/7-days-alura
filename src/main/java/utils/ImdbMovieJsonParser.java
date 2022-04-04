@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ParseData {
-    public static String[] parseJsonMovies(String json){
+public class ImdbMovieJsonParser {
+    private static String[] parseJsonMovies(String json){
         Pattern pattern = Pattern.compile(".*\\[(.*)].*");
         Matcher matcher = pattern.matcher(json);
         StringBuilder sb  = new StringBuilder();
@@ -27,8 +27,10 @@ public class ParseData {
         return resultList;
     }
 
-    public static List<Movie> parseMovies(String[] moviesArray){
+    public static List<Movie> parseMovies(String json){
+        String [] moviesArray = parseJsonMovies(json);
         List<Movie> listMovies = new ArrayList<>();
+
         Iterator<String> titles = parseTitles(moviesArray).iterator();
         Iterator<String> urlImages = parseUrlImages(moviesArray).iterator();
         Iterator<String> ratings = parseRating(moviesArray).iterator();

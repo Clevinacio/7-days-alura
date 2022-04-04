@@ -25,7 +25,7 @@ public class HTMLGenerator {
                 writer.write(
                         """
                             <div class="col-sm-3 col-lg-2">
-                                <div class="card" style="background-color: rgb(158, 157, 157); color: white; margin-top: 5px;">
+                                <div class="card" style="background-color: rgb(158, 157, 157); color: white; border-color: white; margin-top: 5px;">
                                     <img src="%s"
                                         class="card-img-top" alt="Capa %s">
                                     <div class="card-body">
